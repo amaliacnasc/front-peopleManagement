@@ -36,4 +36,5 @@ async function fetchUsers(){
       
         console.error('Erro ao buscar ou adicionar usuários:', error);
     }
+    fetchUsers();
 }});
