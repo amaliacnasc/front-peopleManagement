@@ -15,7 +15,7 @@ async function fetchUsers(){
         const users = await res.json();
         
 
-       // const tabela = document.getElementById('tabela-usuarios');
+        const tabela = document.getElementById('tabela-usuarios');
         const tbody = document.getElementById('tbody'); 
         tbody.innerHTML = ''; 
 
