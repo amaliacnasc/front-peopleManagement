@@ -13,7 +13,7 @@ async function fetchUsers(){
 
         // Obtendo os dados da resposta
         const users = await res.json();
-
+        
 
         const tabela = document.getElementById('tabela-usuarios');
         tabela.innerHTML = ''; 
@@ -36,5 +36,6 @@ async function fetchUsers(){
       
         console.error('Erro ao buscar ou adicionar usuários:', error);
     }
-    fetchUsers();
-}});
+  
+}
+fetchUsers()});
