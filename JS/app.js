@@ -1,5 +1,5 @@
 window.addEventListener('load', function(){
-
+console.log('oi');
 async function fetchUsers(){
     
     try {
