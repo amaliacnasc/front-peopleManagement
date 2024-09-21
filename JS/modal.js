@@ -1,4 +1,4 @@
-const botaoVer = document.getElementsByClassName('botao-ver'); 
+const botaoVer = document.getElementById('botao-ver')
 
 botaoVer.addEventListener('click', clicou); 
 

@@ -29,7 +29,7 @@ async function fetchUsers(){
                 <td class="fonte">${user.cpf}</td>
                 <td class="fonte">${user.birthdate}</td>
                 <td class ="fonte">
-                    <a href="#" type="button" class="btn btn-small btn-success botao-ver" data-bs-toggle = "modal" data-bs-target ="#dados-modal'><i class="bi bi-eye"></i>Ver</a>
+                    <a href="#" type="button" class="btn btn-small btn-success botao-ver" id = "botao-ver" data-bs-toggle = "modal" data-bs-target ="#dados-modal'><i class="bi bi-eye"></i>Ver</a>
                     <a href="#" type="button" class="btn btn-small btn-primary"><i class="bi bi-pencil"></i>Editar</a>
                     <a href="#" type="button" class="btn btn-small btn-danger"><i class="bi bi-person-x"></i>Remover</a>
                 </td>
