@@ -28,6 +28,11 @@ async function fetchUsers(){
                 <td class="fonte">${user.email}</td>
                 <td class="fonte">${user.birthdate}</td>
                 <td class="fonte">${user.phone}</td>
+                <td class ="fonte">
+                    <a href="#" type="button" class="btn btn-small btn-success"><i class="bi bi-eye"></i>Ver</a>
+                    <a href="#" type="button" class="btn btn-small btn-primary"><i class="bi bi-pencil"></i>Editar</a>
+                    <a href="#" type="button" class="btn btn-small btn-danger"><i class="bi bi-person-x"></i>Remover</a>
+                </td>
             `;
             tabela.appendChild(row); 
         });
