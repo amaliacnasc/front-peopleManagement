@@ -1,5 +1,6 @@
 window.addEventListener('load', function () {
 
+    // lista com todos os usuarios 
     async function fetchUsers() {
         try {
             // Buscar usuários
@@ -12,10 +13,11 @@ window.addEventListener('load', function () {
 
             const users = await res.json();
             const tbody = document.getElementById('tbody');
-            tbody.innerHTML = ''; // Limpar a tabela antes de adicionar novas linhas
+            tbody.innerHTML = ''; // limpando tabela 
 
             users.forEach(user => {
                 const row = document.createElement('tr');
+                row.classList.add(`linha${user._id}`); // user id para trackear a linha a ser deletada
                 row.innerHTML = `
                     <td class="fonte">${user.name}</td>
                     <td class="fonte">${user.phone}</td>
@@ -37,14 +39,13 @@ window.addEventListener('load', function () {
                 tbody.appendChild(row);
             });
 
-            //Fetch nos dados do Mongo clicando em ver 
+            // ver detalhes de um usuario 
             const botoesVer = document.querySelectorAll('.botao-ver');
             botoesVer.forEach(botao => {
                 botao.addEventListener('click', async function () {
                     const id = this.getAttribute('data-id');
 
                     try {
-                        // Buscar dados do usuário para visualização
                         const getUser = await fetch(`https://peoplemanagement.onrender.com/api/usuarios/${id}`, {
                             method: 'GET',
                             headers: {
@@ -54,7 +55,7 @@ window.addEventListener('load', function () {
 
                         const user = await getUser.json();
 
-                        // Preenchendo o modal de visualizacao
+                        // modal de ver detalhes do usuario 
                         document.getElementById('nameModal').textContent = user.name;
                         document.getElementById('phoneModal').textContent = user.phone;
                         document.getElementById('emailModal').textContent = user.email;
@@ -71,14 +72,40 @@ window.addEventListener('load', function () {
                 });
             });
 
-            // botao de editar
+            // botao de delete de usuario 
+            const botaoRemover = document.querySelectorAll('.botao-remover');
+            botaoRemover.forEach(botao => {
+                botao.addEventListener('click', async function () {
+                    const id = this.getAttribute('data-id');
+                    const row = document.querySelector(`.linha${id}`); // pegando linha que o ID seja igual ao id 
+
+                    if (row) { 
+                        const confirmado = confirm('Você tem certeza que quer remover este usuário?');
+                        if (confirmado) {
+                            try {
+                                await fetch(`https://peoplemanagement.onrender.com/api/usuarios/${id}`, {
+                                    method: "DELETE",
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+                                alert('Usuário removido com sucesso!');
+                                row.remove();
+                            } catch (error) {
+                                console.error('Erro ao remover o usuário:', error);
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Função para editar usuários
             const botoesEditar = document.querySelectorAll('.botao-editar');
             botoesEditar.forEach(botao => {
                 botao.addEventListener('click', async function () {
                     const id = this.getAttribute('data-id');
 
                     try {
-                        // Buscar dados do usuário para edição
                         const getUser = await fetch(`https://peoplemanagement.onrender.com/api/usuarios/${id}`, {
                             method: 'GET',
                             headers: {
@@ -88,25 +115,29 @@ window.addEventListener('load', function () {
 
                         const user = await getUser.json();
 
-                        // Preencher o modal de edição com os dados antigos do usuário
+                        //moda com os dados antigos do usuário
                         document.getElementById('name').value = user.name;
                         document.getElementById('cpf').value = user.cpf;
                         document.getElementById('email').value = user.email;
                         document.getElementById('birthdate').value = user.birthdate;
                         document.getElementById('phone').value = user.phone;
 
-                        // Exibir o modal de edição
+                        // Exibição do edição
                         const modalEdicao = new bootstrap.Modal(document.getElementById('modal-edicao'));
                         modalEdicao.show();
 
-                        // Atualizar dados ao clicar em "Salvar Alterações"
-                        document.querySelector('.salvar').addEventListener('click', async function () {
+                        // Evitar múltiplos event listeners no botão "Salvar"
+                        document.querySelector('.salvar').removeEventListener('click', salvarAlteracoes);
+                        document.querySelector('.salvar').addEventListener('click', salvarAlteracoes);
+
+                        // colocando novos valores no modal 
+                        async function salvarAlteracoes() {
                             const updatedUser = {
                                 name: document.getElementById('name').value,
                                 cpf: document.getElementById('cpf').value,
                                 email: document.getElementById('email').value,
                                 birthdate: document.getElementById('birthdate').value,
-                                phone: document.getElementById('phone').value,
+                                phone: document.getElementById('phone').value
                             };
 
                             try {
@@ -128,8 +159,7 @@ window.addEventListener('load', function () {
                             } catch (error) {
                                 console.error('Erro ao salvar as alterações:', error);
                             }
-                        });
-
+                        }
                     } catch (error) {
                         console.error('Erro ao buscar os dados do usuário para edição:', error);
                     }
