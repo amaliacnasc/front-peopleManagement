@@ -1,47 +1,145 @@
-window.addEventListener('load', function(){
-console.log('oi');
-async function fetchUsers(){
-    
-    try {
-        // Fazendo  GET para buscar os usuários
-        const res = await fetch('https://peoplemanagement.onrender.com/api/usuarios', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+window.addEventListener('load', function () {
 
-        // Obtendo os dados da resposta
-        const users = await res.json();
-        
+    async function fetchUsers() {
+        try {
+            // Buscar usuários
+            const res = await fetch('https://peoplemanagement.onrender.com/api/usuarios', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
 
-        const tabela = document.getElementById('tabela-usuarios');
-        const tbody = document.getElementById('tbody'); 
-        tbody.innerHTML = ''; 
+            const users = await res.json();
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = ''; // Limpar a tabela antes de adicionar novas linhas
 
-       
-        users.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="fonte">${user.name}</td>
-                <td class="fonte">${user.phone}</td>
-                <td class="fonte">${user.email}</td>
-                <td class="fonte">${user.cpf}</td>
-                <td class="fonte">${user.birthdate}</td>
-                <td class ="fonte">
-                    <a href="#" type="button" class="btn btn-small btn-success botao-ver" id = "botao-ver" data-bs-toggle = "modal" data-bs-target ="#dados-modal'><i class="bi bi-eye"></i>Ver</a>
-                    <a href="#" type="button" class="btn btn-small btn-primary"><i class="bi bi-pencil"></i>Editar</a>
-                    <a href="#" type="button" class="btn btn-small btn-danger"><i class="bi bi-person-x"></i>Remover</a>
-                </td>
-            `;
-            tabela.appendChild(row); 
-        });
-      
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="fonte">${user.name}</td>
+                    <td class="fonte">${user.phone}</td>
+                    <td class="fonte">${user.email}</td>
+                    <td class="fonte">${user.cpf}</td>
+                    <td class="fonte">${user.birthdate}</td>
+                    <td class="fonte text-end">
+                        <a href="#" type="button" class="btn btn-small btn-success botao-ver" data-id="${user._id}">
+                            <i class="bi bi-eye"></i> Ver
+                        </a>
+                        <a href="#" type="button" class="btn btn-small btn-primary botao-editar" data-id="${user._id}">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a href="#" type="button" class="btn btn-small btn-danger botao-remover" data-id="${user._id}">
+                            <i class="bi bi-person-x"></i> Remover
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
 
-    } catch (error) {
-      
-        console.error('Erro ao buscar ou adicionar usuários:', error);
+            //Fetch nos dados do Mongo clicando em ver 
+            const botoesVer = document.querySelectorAll('.botao-ver');
+            botoesVer.forEach(botao => {
+                botao.addEventListener('click', async function () {
+                    const id = this.getAttribute('data-id');
+
+                    try {
+                        // Buscar dados do usuário para visualização
+                        const getUser = await fetch(`https://peoplemanagement.onrender.com/api/usuarios/${id}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const user = await getUser.json();
+
+                        // Preenchendo o modal de visualizacao
+                        document.getElementById('nameModal').textContent = user.name;
+                        document.getElementById('phoneModal').textContent = user.phone;
+                        document.getElementById('emailModal').textContent = user.email;
+                        document.getElementById('cpfModal').textContent = user.cpf;
+                        document.getElementById('birthdateModal').textContent = user.birthdate;
+
+                        // exibindo o modal de visualização
+                        const modalVer = new bootstrap.Modal(document.getElementById('dados-modal'));
+                        modalVer.show();
+
+                    } catch (error) {
+                        console.error('Erro ao buscar os dados do usuário:', error);
+                    }
+                });
+            });
+
+            // botao de editar
+            const botoesEditar = document.querySelectorAll('.botao-editar');
+            botoesEditar.forEach(botao => {
+                botao.addEventListener('click', async function () {
+                    const id = this.getAttribute('data-id');
+
+                    try {
+                        // Buscar dados do usuário para edição
+                        const getUser = await fetch(`https://peoplemanagement.onrender.com/api/usuarios/${id}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const user = await getUser.json();
+
+                        // Preencher o modal de edição com os dados antigos do usuário
+                        document.getElementById('name').value = user.name;
+                        document.getElementById('cpf').value = user.cpf;
+                        document.getElementById('email').value = user.email;
+                        document.getElementById('birthdate').value = user.birthdate;
+                        document.getElementById('phone').value = user.phone;
+
+                        // Exibir o modal de edição
+                        const modalEdicao = new bootstrap.Modal(document.getElementById('modal-edicao'));
+                        modalEdicao.show();
+
+                        // Atualizar dados ao clicar em "Salvar Alterações"
+                        document.querySelector('.salvar').addEventListener('click', async function () {
+                            const updatedUser = {
+                                name: document.getElementById('name').value,
+                                cpf: document.getElementById('cpf').value,
+                                email: document.getElementById('email').value,
+                                birthdate: document.getElementById('birthdate').value,
+                                phone: document.getElementById('phone').value,
+                            };
+
+                            try {
+                                const updateUser = await fetch(`https://peoplemanagement.onrender.com/api/usuarios/${id}`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(updatedUser)
+                                });
+
+                                if (updateUser.ok) {
+                                    alert('Usuário atualizado com sucesso!');
+                                    modalEdicao.hide(); // Fechar o modal após salvar
+                                    fetchUsers(); // Atualizar a tabela
+                                } else {
+                                    console.error('Erro ao atualizar o usuário:', await updateUser.text());
+                                }
+                            } catch (error) {
+                                console.error('Erro ao salvar as alterações:', error);
+                            }
+                        });
+
+                    } catch (error) {
+                        console.error('Erro ao buscar os dados do usuário para edição:', error);
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.error('Erro ao buscar usuários:', error);
+        }
     }
-  
-}
-fetchUsers()});
+
+    fetchUsers(); // Chamar a função para buscar e listar usuários na tabela
+});
